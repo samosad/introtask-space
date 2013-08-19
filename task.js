@@ -6,16 +6,12 @@
  * @param {Number} capacity Грузоподъемность корабля.
  */
 function Vessel(name, position, capacity) {
-    if(typeof(name) !== 'string' || name.length === 0) throw new Error("Некорректное название корабля");
-    if(isNaN(capacity) || capacity < 0) throw new Error("Некорректно грузоподъемность корабля");
-
-    if(!(position instanceof Array) || position.length !== 2)
-        throw new Error('Некорректное местоположение корабля');
-    else
-        for(var i = 0; i < position.length; i++)
-            if (isNaN(position[i]))
-                throw new Error('Некорректная '+(i+1)+'-ая координата местоположения корабля');
-
+    if(typeof(name) !== 'string' || name.length === 0) 
+    	throw new Error("Некорректное название корабля");
+    if(isNaN(capacity) || capacity < 0) 
+    	throw new Error("Некорректная грузоподъемность корабля");
+    if(!(position instanceof Array || position instanceof Planet) || position.length !== 2 || isNaN(position[0]) || isNaN(position[1]))
+        throw new Error('Некорректные координаты корабля');
     
     this.name = name;
 	this.flyTo(position);
@@ -66,13 +62,12 @@ Vessel.prototype.getOccupiedSpace = function () {
  * @name Vessel.report
  */
 Vessel.prototype.flyTo = function (newPosition) {
-    if (newPosition instanceof Planet) {
+    if (newPosition instanceof Planet)
         this.position = newPosition.position;        
-    } else if (newPosition instanceof Array && newPosition.length === 2) {
+    else if (newPosition instanceof Array && newPosition.length === 2)
         this.position = newPosition;
-    } else {
-        console.log("Неверный параметр");
-    }
+    else
+        throw new Error('Некорректные координаты');
 };
 
 /**
@@ -84,17 +79,13 @@ Vessel.prototype.flyTo = function (newPosition) {
  */
 function Planet(name, position, availableAmountOfCargo) {
     if(typeof name !== 'string' || name.length === 0)
-        throw new Error("Указано некорректное название планеты");
+        throw new Error("Некорректное название планеты");
 
-    if(!(position instanceof  Array) || position.length !== 2)
-        throw new Error('Указаны некорректные координаты планеты');
-
-    for(var i = 0; i<position.length; i++)
-        if (isNaN(position[i]))
-            throw new Error('Указана некоректная '+(i+1)+'-ая координата планеты');
+    if(!(position instanceof  Array) || position.length !== 2 || isNaN(position[0]) || isNaN(position[1]))
+        throw new Error('Некорректные координаты планеты');
 
     if(isNaN(availableAmountOfCargo) || availableAmountOfCargo < 0)
-        throw new Error('Указано некоректное значение доступного количества груза на планете');
+        throw new Error('Некоректное значение доступного количества груза на планете');
         
     this.name = name;
     this.position = position;
@@ -134,10 +125,10 @@ Planet.prototype.loadCargoTo = function (vessel, cargoWeight) {
         throw new Error('Загружаемый объект должен быть кораблем');
 
     if(vessel.position[0] !== this.position[0] || vessel.position[1] !== this.position[1])
-        throw new Error('Корабль должен находится на планете для загрузки');
+        throw new Error('Перед загрузкой корабль должен приземлиться на планету');
 
     if(isNaN(cargoWeight) || cargoWeight < 0)
-        throw new Error('Некорректно указан вес загружаемого груза');
+        throw new Error('Некорректный вес загружаемого груза');
 
     if(cargoWeight > this.availableAmountOfCargo)
         throw new Error('Вес загружемого груза превышает вес груза имеющегося на планете. Доступно для загрузки: ' + this.availableAmountOfCargo+'т.');
